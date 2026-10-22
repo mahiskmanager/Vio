@@ -1,71 +1,23 @@
-# Inside Chat — App de chat en tiempo real
+# Inside v2.0 — Red Social + Chat (ZIP 1/2)
 
-Chat web profesional multidispositivo con **Firebase Authentication** y **Firebase Realtime Database**.
+App social estilo Instagram: feed de publicaciones, verificación con palomita azul (se gestiona desde el panel admin), búsqueda de usuarios, solicitudes de amistad, chat privado 1-a-1 y perfil editable. **Sin fotos, sin Storage.**
 
-## 📦 Contenido
-
-```
-chat-app/
-├── index.html        → Inicio de sesión
-├── register.html     → Crear cuenta
-├── chat.html         → Sala de chat
-├── css/style.css     → Estilos (responsive, modo móvil)
-└── js/
-    ├── firebase-config.js  → Configuración de Firebase + utilidades
-    ├── auth.js             → Lógica de login/registro
-    └── chat.js             → Mensajes, presencia, canales, "escribiendo…"
-```
-
-## 🚀 Cómo usarlo
-
-1. **Configura Firebase** (ya incluido con tu proyecto `inside-30b7d`):
-   - En la consola de Firebase → **Authentication** → habilita **Correo electrónico/contraseña**.
-   - En **Realtime Database** → crea la base de datos y establece estas reglas:
-
+## Pasos en Firebase Console
+1. **Authentication** → habilitar Correo/contraseña.
+2. **Realtime Database → Reglas** (incluye nodo `verified` y `admins`):
 ```json
 {
   "rules": {
-    "users": {
-      "$uid": { ".read": "auth != null", ".write": "auth.uid === $uid" }
-    },
-    "messages": {
-      "$channel": { ".read": "auth != null", ".write": "auth != null" }
-    },
-    "presence": {
-      "$uid": { ".read": "auth != null", ".write": "auth.uid === $uid" }
-    },
-    "typing": {
-      "$channel": { ".read": "auth != null", ".write": "auth != null" }
-    }
+    "users": { "$uid": { ".read": "auth != null", ".write": "auth.uid === $uid || root.child('admins/'+auth.uid).exists()" } },
+    "posts": { ".read": "auth != null", "$postId": { ".write": "auth != null && (!data.exists() || data.child('uid').val() === auth.uid || root.child('admins/'+auth.uid).exists())", "likes": { "$uid": { ".write": "auth != null" } } } },
+    "friends": { "$uid": { ".read": "auth.uid === $uid", ".write": "auth != null" } },
+    "friendRequests": { "incoming": { "$toUid": { ".read": "auth.uid === $toUid", ".write": "auth != null" } }, "sent": { "$fromUid": { ".read": "auth.uid === $fromUid", ".write": "auth != null" } } },
+    "messages": { "private": { "$convId": { ".read": "auth != null && $convId.contains(auth.uid)", ".write": "auth != null && $convId.contains(auth.uid)" } } },
+    "presence": { ".read": "auth != null", "$uid": { ".write": "auth.uid === $uid" } },
+    "typing": { ".read": "auth != null", ".write": "auth != null" },
+    "admins": { ".read": false, ".write": false },
+    "adminEmails": { ".read": false, ".write": false }
   }
 }
 ```
-
-2. **Abre `index.html`** en tu navegador (doble clic) o súbelo a cualquier hosting estático (Firebase Hosting, Netlify, GitHub Pages).
-
-3. Regístrate con un correo y contraseña → entra al chat. Funciona desde cualquier dispositivo al mismo tiempo.
-
-## ✨ Características
-
-- ✅ Registro e inicio de sesión con correo/contraseña
-- ✅ Mensajes en tiempo real (se actualizan al instante en todos los dispositivos)
-- ✅ 3 canales: #general, #random, #proyectos
-- ✅ Lista de usuarios conectados en vivo (presencia)
-- ✅ Indicador "está escribiendo…"
-- ✅ Avatares con iniciales, horas, burbujas estilo app moderna
-- ✅ Diseño responsive con menú lateral en móvil
-- ✅ Cierre de sesión seguro
-- ✅ Sin servidor propio — todo corre sobre Firebase
-
-## 🔒 Nota de seguridad
-
-La `apiKey` en el código es pública por diseño (así funciona Firebase). La seguridad real la dan las **reglas de la base de datos** que pegas arriba. Sin ellas cualquiera podría leer/escribir.
-
-## 📤 Subir a internet (opcional)
-
-```bash
-npm install -g firebase-tools
-firebase login
-firebase init hosting   # elige esta carpeta, index.html como principal
-firebase deploy
-```
+3. Abrir `index.html` y registrarse. La palomita azul aparece solo si un admin verificó la cuenta desde el panel.

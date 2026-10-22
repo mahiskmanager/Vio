@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inside Chat — Iniciar Sesión</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="auth-body">
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <div class="logo-badge">IC</div>
+        <h1>Inside Chat</h1>
+        <p class="auth-subtitle">Conecta en tiempo real con tu comunidad</p>
+      </div>
+
+      <div id="alertBox" class="alert hidden"></div>
+
+      <form id="loginForm" autocomplete="off">
+        <div class="field">
+          <label for="email">Correo electrónico</label>
+          <input type="email" id="email" placeholder="tucorreo@ejemplo.com" required />
+        </div>
+        <div class="field">
+          <label for="password">Contraseña</label>
+          <input type="password" id="password" placeholder="••••••••" required minlength="6" />
+        </div>
+        <button type="submit" id="loginBtn" class="btn-primary">
+          <span class="btn-text">Iniciar sesión</span>
+          <span class="spinner hidden"></span>
+        </button>
+      </form>
+
+      <p class="auth-footer">
+        ¿No tienes cuenta? <a href="register.html">Crear cuenta</a>
+      </p>
+    </div>
+    <p class="app-version">Inside Chat v1.0 · Firebase Realtime</p>
+  </div>
+
+  <script type="module" src="js/auth.js"></script>
+</body>
+</html>
